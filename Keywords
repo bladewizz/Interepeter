@@ -1,0 +1,9 @@
+Integer: int
+FLoat: float
+String: String
+String literal: ' ' or " "
+Boolean: true and false
+Keyword: number code can be any type, cannot be changed
+  = : assignment
+  
+Constants: user defined of any type, cannot be changed
