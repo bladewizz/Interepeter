@@ -1,0 +1,80 @@
+import re
+
+
+def load_file():
+    test_file = open('testfile.txt', 'r')
+    text = test_file.readline()
+    to_be_read = []
+
+    while text != "":
+        to_be_read.append(text)
+        text = test_file.readline()
+
+        if text == '':
+            small_text_amount = ''.join(to_be_read)
+            yield small_text_amount
+            to_be_read = []
+
+    test_file.close()
+
+
+class LexicalAnalyzer:
+    lin_num = 1
+
+    def tokenize(self, code):
+        rules = [
+            ('MAIN', r'main'),  # main
+            ('id', r'[a-zA-Z]\w*'),  # id
+            ('literal_integer', r'\d(\d)*'),
+            ('le_operator', r'<='),
+            ('lt_operator', r'<'),
+            ('ge_operator', r'>='),
+            ('gt_operator', r'>'),
+            ('eq_operator', r'=='),
+            ('assignment_operator', r'='),
+            ('ne_operator', r'~='),
+            ('add_operator', r'\+'),
+            ('sub_operator', r'\-'),
+            ('mul_operator', r'\*'),
+            ('div_operator', r'\/'),
+            ('NEXT_LINE', r'\n'),  # to go to next line
+            ('EMPTY', r'[ \t]+'),  # White space
+
+        ]
+
+        tokens_join = '|'.join('(?P<%s>%s)' % x for x in rules)
+        lin_start = 0
+        tokens = []
+        lexemes = []
+        rows = []
+
+        for x in re.finditer(tokens_join, code):
+            token_type = x.lastgroup
+            token_lexeme = x.group(token_type)
+
+            if token_type == 'NEXT_LINE':
+                lin_start = x.end()
+                self.lin_num += 1
+            elif token_type == 'EMPTY':
+                continue
+            else:
+                tokens.append(token_type)
+                lexemes.append(token_lexeme)
+                rows.append(self.lin_num)
+                print('Token = {0}, \nLexeme = \'{1}\', \nLine Number = {2}\n'.format(token_type, token_lexeme,
+                                                                                      self.lin_num))
+
+        return tokens, lexemes, rows
+
+
+if __name__ == '__main__':
+    Analyzer = LexicalAnalyzer()
+    token = []
+    lexeme = []
+    row = []
+    for i in load_file():
+        t, lex, lin = Analyzer.tokenize(i)
+        token += t
+        lexeme += lex
+        row += lin
+        print('\nAll tokens were looking for', token)
